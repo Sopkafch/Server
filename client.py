@@ -1,19 +1,15 @@
 import socket
 import webbrowser
-import time
 
-def main():
-    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) # Для того чтоб не появлялась невзапная ошибка от портов 
+server.bind(("194.87.235.98", 8080)) 
 
-    while True:
-        if client.connect_ex(("194.87.235.98", 8080)):
-            pass
-        else:
-            while True:
-                data = client.recv(1024).decode("utf-8") 
-                print(data)
-                if data == 'google':
-                    print(23)
-                    webbrowser.open("https://www.google.com")
-                    
-main()
+server.listen(5) # Прослушивает подключение 
+
+user, adres = server.accept()
+print('[+] Connect')
+print(adres)
+
+while True:
+    user.send(input('$ ').encode("utf-8")) 
