@@ -3,7 +3,7 @@ import webbrowser
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) # Для того чтоб не появлялась невзапная ошибка от портов 
-server.bind(("194.87.235.98", 8080)) 
+server.bind(("0.0.0.0", 10000)) 
 
 server.listen(5) # Прослушивает подключение 
 
