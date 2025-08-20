@@ -40,6 +40,7 @@ def check_file(file):
        
 
 while True:
+    print("Одидаем клиента")
     user, adres = server.accept()
     print('[+] Connect')
     print(adres)
@@ -61,3 +62,4 @@ while True:
         except ConnectionResetError: # Обробатывет ошибку 
             print(f'[-] Disconect - {adres}, не нажимай на Enter а токонсоль поломаетя   ')
             break
+
