@@ -2,7 +2,7 @@
 # v: 0.2 | 05.10.2025 <> Добавлен admin + в добовляется в реестр + добовляется в AppData
 import asyncio
 
-ip = '45.143.93.78'
+ip = '0.0.0.0'
 port = 10000
 
 clients = []
@@ -204,3 +204,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
