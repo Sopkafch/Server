@@ -78,7 +78,7 @@ async def handle_client(reader, writer):
                 elif message[0] == "list":
                     writer.write("Устройства в сети: \n".encode())
                     for i, client in enumerate(clients):
-                        writer.write(f"{i}:{client["name"]} \n".encode())
+                        writer.write(f"{i}:{client['name']} \n".encode())
 
                 else:
                     writer.write(f"Неизвестная команда: {message}\n".encode())
