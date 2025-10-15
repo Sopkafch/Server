@@ -1,41 +1,4 @@
-# v: 0.0.1 | 11.08.2025
-# v: 0.2 | 05.10.2025 <> Добавлен admin + в добовляется в реестр + добовляется в AppData
-import asyncio
 
-ip = '0.0.0.0'
-port = 10000
-
-clients = []
-admin = None
-
-async def handle_client(reader, writer):
-    global admin
-    addr = writer.get_extra_info('peername')
-    role_bytes = await reader.read(1024)
-    if not role_bytes:
-        writer.close()
-        await writer.wait_closed()
-        return
-    role = role_bytes.decode().strip()
-
-    if role == 'I8t12ok89u-k9u!@#e4':
-        admin = {'reader': reader, 'writer': writer}
-        try:
-            while True:
-
-                data = await reader.read(1024)
-
-                if not data:
-                    print("[*] Админ отключился")
-                    admin = None
-                    break
-
-                cmd = data.decode().strip()
-                message = cmd.split(maxsplit=2)
-
-                if message[0] == "all":
-                    writer.write("Введите сообщение для всех клиентов:\n".encode())
-                    await writer.drain()
 
                     msg_data = await reader.read(1024)
                     if not msg_data:
@@ -44,31 +7,7 @@ async def handle_client(reader, writer):
                     print(msg)
 
                     for cl in clients:
-                        try:
-                            cl['writer'].write(msg.encode())
-                            await cl['writer'].drain()
-                        except Exception as e:
-                            print(f"[!] Ошибка отправки клиенту {cl['name']}: {e}")
-                    writer.write("Сообщение отправлено всем.\n".encode())
-                    await writer.drain()
-
-                elif message[0] == "name":
-                    if len(message) != 3:
-                        writer.write("Неправильный формат! Правильно: name <id> <новое_имя>\n".encode())
-                        await writer.drain()
-                        return
-                
-                    _, idx, new_name = message
-                
-                    try:
-                        id = int(idx)
-                        clients[id]['name'] = new_name
-                        writer.write(f"Имя клиента {id} изменено на {new_name}\n".encode())
-                        await writer.drain()
-                    except ValueError:
-                        writer.write("ID должен быть числом!\n".encode())
-                        await writer.drain()
-                    except:
+      
                         writer.write("Нет такого ID".encode())
                         await writer.drain()
                 
@@ -100,22 +39,7 @@ async def handle_client(reader, writer):
         clients.append(client)
         print(f"[+] Клиент подключился: {client['name']}")
         try:
-            while True:
-                data = await reader.read(1024) ## принимает все сообщения от client
-                if not data:
-                    break
-                msg = data.decode().strip()
-                admin['writer'].write(msg.encode()) ## отпровляет их admin
-
-        except Exception as e:
-            print(f"[!] Ошибка (client {client['name']}): {e}")
-        finally:
-            clients.remove(client)
-            writer.close()
-            await writer.wait_closed()
-            print(f"[-] Клиент {client['name']} отключён")
-
-async def sms(admin, clients):
+            wh
     writer = admin['writer']
     reader = admin['reader']
 
@@ -201,3 +125,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
