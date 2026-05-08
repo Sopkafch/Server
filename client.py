@@ -1,4 +1,41 @@
+# v: 0.0.1 | 11.08.2025
+# v: 0.2 | 05.10.2025 <> Добавлен admin + добовляется в реестр + добовляется в AppData
+import asyncio
 
+ip = '195.133.144.118'
+port = 10000
+
+clients = []
+admin = None
+
+async def handle_client(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
+    global admin
+    addr = writer.get_extra_info('peername')
+    role_bytes = await reader.read(1024)
+    if not role_bytes:
+        writer.close()
+        await writer.wait_closed()
+        return
+    role = role_bytes.decode().strip()
+
+    if role == 'I8t12ok89u-k9u!@#e4':
+        admin = {'reader': reader, 'writer': writer}
+        try:
+            while True:
+
+                data = await reader.read(1024)
+
+                if not data:
+                    print("[*] Админ отключился")
+                    admin = None
+                    break
+
+                cmd = data.decode().strip()
+                message = cmd.split(maxsplit=2)
+
+                if message[0] == "all":
+                    writer.write("Введите сообщение для всех клиентов:\n".encode())
+                    await writer.drain()
 
                     msg_data = await reader.read(1024)
                     if not msg_data:
@@ -7,7 +44,31 @@
                     print(msg)
 
                     for cl in clients:
-      
+                        try:
+                            cl['writer'].write(msg.encode())
+                            await cl['writer'].drain()
+                        except Exception as e:
+                            print(f"[!] Ошибка отправки клиенту {cl['name']}: {e}")
+                    writer.write("Сообщение отправлено всем.\n".encode())
+                    await writer.drain()
+
+                elif message[0] == "name":
+                    if len(message) != 3:
+                        writer.write("Неправильный формат! Правильно: name <id> <новое_имя>\n".encode())
+                        await writer.drain()
+                        return
+                
+                    _, idx, new_name = message
+                
+                    try:
+                        id = int(idx)
+                        clients[id]['name'] = new_name
+                        writer.write(f"Имя клиента {id} изменено на {new_name}\n".encode())
+                        await writer.drain()
+                    except ValueError:
+                        writer.write("ID должен быть числом!\n".encode())
+                        await writer.drain()
+                    except:
                         writer.write("Нет такого ID".encode())
                         await writer.drain()
                 
@@ -25,10 +86,10 @@
         except Exception as e:
             print(f"[!] Ошибка (admin): {e}")
         finally:
-            if admin and admin['writer'] == writer:
-                admin = None
+            #if admin and admin['writer'] == writer: это хз
+            admin = None
             writer.close()
-            await writer.wait_closed()
+            #await writer.wait_closed() не нужно так как из за него вылезают длинные ошибки 
 
     else:
         client = {
@@ -39,7 +100,22 @@
         clients.append(client)
         print(f"[+] Клиент подключился: {client['name']}")
         try:
-            wh
+            while True:
+                data = await reader.read(1024) ## принимает все сообщения от client
+                if not data:
+                    break
+                msg = data.decode().strip()
+                admin['writer'].write(msg.encode()) ## отпровляет их admin
+
+        except Exception as e:
+            print(f"[!] Ошибка (client {client['name']}): {e}")
+        finally:
+            clients.remove(client)
+            writer.close()
+            #await writer.wait_closed() не нужно так как из за него вылезают длинные ошибки 
+            print(f"[-] Клиент {client['name']} отключён")
+
+async def sms(admin, clients):
     writer = admin['writer']
     reader = admin['reader']
 
@@ -88,15 +164,15 @@
 
             file_info = await reader.read(1024)
             file_info = file_info.decode().strip()
-            file_name, file_size = file_info.split(' | ')
+            file_nam, file_size = file_info.split(' | ') 
             file_size = int(file_size)
 
             # Пересылаем file_info клиенту
             client['writer'].write(file_info.encode())
             await client['writer'].drain()
 
-            # Подтверждаем админу, что можно отправлять файл
-
+            # в это вермя client когда получил методанные отпровляет сообщение, 104 строка принимает data = await reader.read(1024) и отпровляет admin после чего admin начинает отпровлять байты файла
+            
             # Принимаем файл от админа и пересылаем клиенту
             received = 0
             while received < file_size:
